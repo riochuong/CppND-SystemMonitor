@@ -26,8 +26,12 @@ private:
     std::ifstream stream;
 
 public:
+    // the the cmd that start the process 
     static string getCmd(string pid);
-    // static vector<string> getPidList();
+    
+    // get list of all the pid 
+    static vector<string> getPidList();
+    
     // static std::string getVmSize(string pid);
     // static std::string getCpuPercent(string pid);
     // static long int getSysUpTime();

@@ -13,6 +13,7 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 get_filename_component(PROJECT_ID ${CMAKE_CURRENT_SOURCE_DIR} NAME)
 string(REPLACE " " "_" PROJECT_ID ${PROJECT_ID})
 project(${PROJECT_ID})
+message("PROCJET ID ${PROJECT_ID}")
 
 #
 # Project Output Paths
