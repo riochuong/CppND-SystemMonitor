@@ -31,9 +31,12 @@ public:
     
     // get list of all the pid 
     static vector<string> getPidList();
+
+    // get virtual memory size of a specific process 
+    static std::string getVmSize(string pid);
+
+    static std::string getCpuPercent(string pid);
     
-    // static std::string getVmSize(string pid);
-    // static std::string getCpuPercent(string pid);
     // static long int getSysUpTime();
     // static std::string getProcUpTime(string pid);
     // static string getProcUser(string pid);

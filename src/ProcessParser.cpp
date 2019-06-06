@@ -2,6 +2,7 @@
 #include "ProcessParser.h"
 #include "util.h"
 
+const string VMSIZE_PATTERN = "VmData";
 
 std::string ProcessParser::getCmd(string pid) {
     ifstream stream;
@@ -43,4 +44,23 @@ vector<string> ProcessParser::getPidList() {
         throw std::runtime_error("Cannot open /proc folder to read pid list");
     }
     return pid_list;
+}
+
+std::string ProcessParser::getVmSize(string pid) {
+    std::string status_path = Path::basePath() + pid + Path::statusPath();
+    ifstream stream;
+    string line;
+    Util::getStream(status_path, stream);
+    if (stream.is_open()) {
+        while(stream.good()) {
+            std::getline(stream, line);
+            if (!line.compare(0, VMSIZE_PATTERN.length(), VMSIZE_PATTERN)) {    
+                // found the VMSIZE line need to grep the size
+                int start_idx = line.find_first_of("0123456789");
+                int end_idx = line.find_last_of("0123456789");
+                return line.substr(start_idx, end_idx - start_idx + 1);
+            }
+        }
+    }
+    return "N/A";
 }

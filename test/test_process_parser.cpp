@@ -16,3 +16,12 @@ TEST(ProcessParserTest, GetPidList) {
         ASSERT_TRUE(pid_str.find_first_not_of(DIGIT_PATTERN) == string::npos);
     }
 }
+
+TEST(ProcessParserTest, GetVmSize) {
+    string vmsize = ProcessParser::getVmSize("1");
+    std::cout << "VM size of PID 1: " << vmsize << std::endl;
+    ASSERT_TRUE(vmsize.find_first_not_of(DIGIT_PATTERN) == string::npos);
+    vmsize = ProcessParser::getVmSize("17");
+    std::cout << "VM size of PID 17: " << vmsize << std::endl;
+    ASSERT_TRUE(vmsize.compare("N/A") == 0);
+}
