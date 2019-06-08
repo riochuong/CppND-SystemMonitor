@@ -43,16 +43,26 @@ public:
     // get system up time
     static long int getSysUpTime();
     
+    // retreive user id name of a process
     static string getProcUser(string pid);
-    // static vector<string> getSysCpuPercent(string coreNumber = "");
-    // static float getSysRamPercent();
+
+    // get number of available cpu cores
+    static int getNumberOfCores();
+    
+    static vector<string> getSysCpuPercent(string coreNumber = "");
+
+    static std::string PrintCpuStats(std::vector<std::string> values1, std::vector<std::string> values2);
+
+    //static float getSysRamPercent();
     // static string getSysKernelVersion();
     // static int getTotalThreads();
     // static int getTotalNumberOfProcesses();
     // static int getNumberOfRunningProcesses();
     // static string getOSName();
-    // static std::string PrintCpuStats(std::vector<std::string> values1, std::vector<std::string> values2);
+    
     // static bool isPidExisting(string pid);
+
+    // for testing purposes
 };
 
 // TODO: Define all of the above functions below:

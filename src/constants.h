@@ -41,4 +41,7 @@ public:
     static string uidPath() {
         return "/etc/passwd";
     }
+    static string cpuInfoPath() {
+        return "cpuinfo";
+    }
 };
