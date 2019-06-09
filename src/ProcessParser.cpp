@@ -11,8 +11,24 @@ const string DIGIT_PAT = "0123456789";
 const int UID_IDX = 2;
 const char UID_DELIM = ':';
 const char UID_STAT_DELIM = '\t';
+// core info
 const string CPU_CORE_PATTERN = "cpu cores";
 const char CPU_CORE_DELIM = ':';
+
+// meminfo 
+const string MEM_AVAIL_PATTERN = "MemAvailable:";
+const string MEM_FREE_PATTERN = "MemFree:";
+const string BUFFERS_PATTERN = "Buffers:";
+
+// kernel version pattern
+const string LINUX_VER_PATTERN = "Linux version";
+
+// os release
+const string OS_RELEASE_PATTERN = "PRETTY_NAME=";
+
+// threads count
+const string THREAD_PATTERN = "Threads:";
+
 
 std::string ProcessParser::getCmd(string pid)
 {
@@ -311,4 +327,107 @@ std::string ProcessParser::PrintCpuStats(std::vector<std::string> values1, std::
     float totalTime = activeTime + idleTime;
     float result = 100.0*(activeTime / totalTime);
     return to_string(result);
+}
+
+float ProcessParser::getSysRamPercent() {
+    ifstream stream;
+    string meminfo_line;
+    string meminfo_path = Path::basePath() + Path::memInfoPath();
+    float mem_avail;
+    float mem_free;
+    float buffers;
+    int delim_idx;
+    Util::getStream(meminfo_path, stream);
+    if (stream.good()) {
+        try {
+            int count = 0;
+            while (count < 3 && stream.good()) {
+                getline(stream, meminfo_line);
+                if (meminfo_line.compare(0, MEM_AVAIL_PATTERN.size(), MEM_AVAIL_PATTERN) == 0) {
+                    count++;
+                    delim_idx = meminfo_line.find_first_of(':');
+                    if (delim_idx == string::npos) throw std::runtime_error("Invalid Format");
+                    mem_avail = stof(meminfo_line.substr(delim_idx + 1));
+                }
+                else if (meminfo_line.compare(0, MEM_FREE_PATTERN.size(), MEM_FREE_PATTERN) == 0) {
+                    count++;
+                    delim_idx = meminfo_line.find_first_of(':');
+                    if (delim_idx == string::npos) throw std::runtime_error("Invalid Format");
+                    mem_free = stof(meminfo_line.substr(delim_idx + 1));
+                }
+                else if (meminfo_line.compare(0, BUFFERS_PATTERN.size(), BUFFERS_PATTERN) == 0) {
+                    count++;
+                    delim_idx = meminfo_line.find_first_of(':');
+                    if (delim_idx == string::npos) throw std::runtime_error("Invalid Format");
+                    buffers = stof(meminfo_line.substr(delim_idx + 1));
+                }
+            }
+            // in case sth is going really wrong
+            if (count < 3) throw std::runtime_error("Failed to retreive all memory info");
+            return 100.0 * (1 - mem_free / (mem_avail - buffers));
+        }
+        catch (const std::exception &e) {
+            std::cout << "Invalid value for conversion: " << e.what() << std::endl;
+            return -1.0;
+        }
+    }
+    // sth wrong happen
+    return -1.0;
+}
+
+
+
+string ProcessParser::getSysKernelVersion() {
+    string version_path = Path::basePath() + Path::versionPath();
+    ifstream stream;
+    string version_string;
+    Util::getStream(version_path, stream);
+    if (stream.good()) {
+        getline(stream, version_string);
+        // this should be 0 but we still need to look for it just in case some weird thing happen
+        int linux_version_idx = version_string.find(LINUX_VER_PATTERN, 0);
+        if (linux_version_idx == string::npos) return "N/A";
+        int second_space_idx = version_string.find(' ', LINUX_VER_PATTERN.length() + 1);
+        if (second_space_idx == string::npos) return "N/A";
+        string final_version = version_string.substr(LINUX_VER_PATTERN.length(), second_space_idx - LINUX_VER_PATTERN.length() + 1);
+        return Util::rtrim(Util::ltrim(final_version));
+    }
+    return "N/A";
+}
+
+string ProcessParser::getOSName() {
+    string os_release_path = Path::osReleaseFullPath();
+    ifstream stream;
+    string line;
+    Util::getStream(os_release_path, stream);
+    while(stream.good()) {
+        getline(stream, line);
+        if (line.compare(0, OS_RELEASE_PATTERN.size(), OS_RELEASE_PATTERN) == 0) {
+            int equal_sign_idx = line.find_first_of('=');
+            if (equal_sign_idx == string::npos) break;
+            return line.substr(equal_sign_idx + 1, line.length() - equal_sign_idx + 1);
+        }
+    }
+    return "N/A";
+}
+
+int ProcessParser::getTotalThreads() {
+    vector<string> pid_list = ProcessParser::getPidList();
+    int total_thread_count = 0;
+    for (auto pid_str: pid_list) {
+        string pid_status_path = Path::basePath() + pid_str + Path::statusPath();
+        ifstream stream;
+        Util::getStream(pid_status_path, stream);
+        string line;
+        while(stream.good()) {
+            getline(stream, line);
+            if (line.compare(0, THREAD_PATTERN.size(), THREAD_PATTERN) == 0) {
+                int colon_idx = line.find_first_of(':');
+                if (colon_idx != string::npos) {
+                    total_thread_count += stoi(line.substr(colon_idx+1));
+                }
+            }
+        }
+    }
+    return total_thread_count;
 }

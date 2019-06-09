@@ -44,4 +44,7 @@ public:
     static string cpuInfoPath() {
         return "cpuinfo";
     }
+    static string osReleaseFullPath() {
+        return "/etc/os-release";
+    }
 };

@@ -101,9 +101,34 @@ TEST(ProcessParserTest, GetSystemPercentCPU) {
 
 TEST(ProcessParserTest, PrintCPUStats) {
     vector<string> stat1 = ProcessParser::getSysCpuPercent("0");
-    sleep(5);
+    sleep(1);
     vector<string> stat2 = ProcessParser::getSysCpuPercent("0");
     string percent_active = ProcessParser::PrintCpuStats(stat1, stat2);
     std::cout << "Active time percentage over 5 sec: " << percent_active << std::endl;
     ASSERT_TRUE(stof(percent_active) > 0.0);
+}
+
+TEST(ProcessParserTest, GetSysRamPercentage) {
+    float ramPercentage = ProcessParser::getSysRamPercent();
+    std::cout << "Total memory usage is at : " << ramPercentage << "\%" << std::endl;
+    ASSERT_TRUE(ramPercentage > 0.0 && ramPercentage < 100.0);    
+}
+
+TEST(ProcessParserTest, GetKernelVersion) {
+    string kernelVersion = ProcessParser::getSysKernelVersion();
+    std::cout << "Kernel Version: " << kernelVersion << std::endl;
+    ASSERT_TRUE(kernelVersion.compare("N/A") != 0);
+    ASSERT_TRUE(kernelVersion[0] == '4');
+}
+
+TEST(ProcessParserTest, GetOsRelease) {
+    string os_version = ProcessParser::getOSName();
+    std::cout << "OS name: " << os_version << std::endl;
+    ASSERT_TRUE(os_version.find("Ubuntu") != string::npos);
+}
+
+TEST(ProcessParserTest, GetTotalThreads) {
+    int total_thread = ProcessParser::getTotalThreads();
+    std::cout << "Total Threads: " << total_thread << std::endl;
+    ASSERT_TRUE(total_thread > 0);
 }

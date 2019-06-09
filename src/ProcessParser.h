@@ -51,18 +51,26 @@ public:
     
     static vector<string> getSysCpuPercent(string coreNumber = "");
 
+    // print cpu stats at two specific point in time
     static std::string PrintCpuStats(std::vector<std::string> values1, std::vector<std::string> values2);
 
-    //static float getSysRamPercent();
-    // static string getSysKernelVersion();
-    // static int getTotalThreads();
+    // get total percentage ram usage on device
+    static float getSysRamPercent();
+
+    // get version of the linux kernel
+    static string getSysKernelVersion();
+
+    // return pretty os name at /etc/os-release
+    static string getOSName();
+
+    // get total number of threads used by all processes in the system
+    static int getTotalThreads();
+    
     // static int getTotalNumberOfProcesses();
     // static int getNumberOfRunningProcesses();
-    // static string getOSName();
+    
     
     // static bool isPidExisting(string pid);
-
-    // for testing purposes
 };
 
 // TODO: Define all of the above functions below:
