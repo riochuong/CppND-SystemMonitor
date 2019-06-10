@@ -29,6 +29,10 @@ const string OS_RELEASE_PATTERN = "PRETTY_NAME=";
 // threads count
 const string THREAD_PATTERN = "Threads:";
 
+// processes count
+const string PROCESSES_PATTERN = "processes";
+const string PROCESSES_RUNNING_PATTERN = "procs_running";
+
 
 std::string ProcessParser::getCmd(string pid)
 {
@@ -430,4 +434,42 @@ int ProcessParser::getTotalThreads() {
         }
     }
     return total_thread_count;
+}
+
+int ProcessParser::getTotalNumberOfProcesses() {
+    string proc_stat_path = Path::basePath() + Path::statPath();
+    ifstream stream;
+    Util::getStream(proc_stat_path, stream);
+    string line;
+    while (stream.good()) {
+        getline(stream, line);
+        if (line.compare(0, PROCESSES_PATTERN.length(), PROCESSES_PATTERN) == 0){
+            int sep_idx = line.find_first_of(' ');
+            return stoi(line.substr(sep_idx + 1));
+        }
+    }
+    return -1;
+}
+
+int ProcessParser::getNumberOfRunningProcesses() {
+     string proc_stat_path = Path::basePath() + Path::statPath();
+    ifstream stream;
+    Util::getStream(proc_stat_path, stream);
+    string line;
+    while (stream.good()) {
+        getline(stream, line);
+        if (line.compare(0, PROCESSES_RUNNING_PATTERN.length(), PROCESSES_RUNNING_PATTERN) == 0){
+            int sep_idx = line.find_first_of(' ');
+            return stoi(line.substr(sep_idx + 1));
+        }
+    }
+    return -1;
+}
+
+bool ProcessParser::isPidExisting(string pid) {
+    vector<string> pid_list = ProcessParser::getPidList();
+    for (auto pid_str : pid_list) {
+        if (pid_str.compare(0, pid.length(), pid) == 0) return true;
+    }
+    return false;
 }

@@ -130,5 +130,26 @@ TEST(ProcessParserTest, GetOsRelease) {
 TEST(ProcessParserTest, GetTotalThreads) {
     int total_thread = ProcessParser::getTotalThreads();
     std::cout << "Total Threads: " << total_thread << std::endl;
-    ASSERT_TRUE(total_thread > 0);
+    ASSERT_TRUE(total_thread > 1);
+}
+
+TEST(ProcessParserTest, GetTotalProcesses) {
+    int total_process = ProcessParser::getTotalNumberOfProcesses();
+    std::cout << "Total Processes: " << total_process << std::endl;
+    ASSERT_TRUE(total_process >= 1);
+}
+
+TEST(ProcessParserTest, GetNumRunningProcess) {
+    int total_running_process = ProcessParser::getNumberOfRunningProcesses();
+    std::cout << "Total Number of Running Processes: " << total_running_process << std::endl;
+    ASSERT_TRUE(total_running_process >= 1);
+}
+
+TEST(ProcessParserTest, IsPidExist) {
+    string pid = "1";
+    bool is_pid_exists = ProcessParser::isPidExisting(pid);
+    std::cout << "PID " << pid << " exists :" << is_pid_exists << std::endl;
+    ASSERT_TRUE(is_pid_exists);
+    is_pid_exists = ProcessParser::isPidExisting("-123");
+    ASSERT_FALSE(is_pid_exists);
 }

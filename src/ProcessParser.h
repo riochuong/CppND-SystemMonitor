@@ -66,11 +66,14 @@ public:
     // get total number of threads used by all processes in the system
     static int getTotalThreads();
     
-    // static int getTotalNumberOfProcesses();
-    // static int getNumberOfRunningProcesses();
+    // get total number of processes
+    static int getTotalNumberOfProcesses();
     
+    // get total number of running processes
+    static int getNumberOfRunningProcesses();
     
-    // static bool isPidExisting(string pid);
+    // check if pid existing
+    static bool isPidExisting(string pid);
 };
 
 // TODO: Define all of the above functions below:
