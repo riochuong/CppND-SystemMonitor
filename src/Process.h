@@ -18,6 +18,10 @@ public:
     Process(string pid){
         this->pid = pid;
         this->user = ProcessParser::getProcUser(pid);
+        this->cmd = ProcessParser::getCmd(pid);
+        this->mem = ProcessParser::getVmSize(pid);
+        this->upTime = ProcessParser::getProcUpTime(pid);
+        this->cpu = ProcessParser::getCpuPercent(pid);
         //TODOs:
         //complete for mem
         //complete for cmd
@@ -25,12 +29,12 @@ public:
         //complete for cpu
     }
     void setPid(int pid);
-    string getPid()const;
-    string getUser()const;
-    string getCmd()const;
-    int getCpu()const;
-    int getMem()const;
-    string getUpTime()const;
+    string getPid() const;
+    string getUser() const;
+    string getCmd() const;
+    int getCpu() const;
+    int getMem() const;
+    string getUpTime() const;
     string getProcess();
 };
 void Process::setPid(int pid){
@@ -46,5 +50,11 @@ string Process::getProcess(){
     this->upTime = ProcessParser::getProcUpTime(this->pid);
     this->cpu = ProcessParser::getCpuPercent(this->pid);
 
-    return (this->pid + "   "); //+ //TODO: finish the string! this->user + "   "+ mem...cpu...upTime...;
+    return (this->pid + "   "
+            + this->user + "   " 
+            + this->mem + "   "
+            + this->cpu + "   "
+            + this->upTime + "   " 
+            + this->cmd
+    );
 }

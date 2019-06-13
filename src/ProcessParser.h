@@ -75,5 +75,3 @@ public:
     // check if pid existing
     static bool isPidExisting(string pid);
 };
-
-// TODO: Define all of the above functions below:

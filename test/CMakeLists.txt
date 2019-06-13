@@ -1,3 +1,3 @@
 add_executable(test_process_parser test_process_parser.cpp)
 
-target_link_libraries(test_process_parser gtest_main process_parser)
+target_link_libraries(test_process_parser util gtest_main process_parser)
