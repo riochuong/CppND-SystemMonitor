@@ -407,9 +407,10 @@ string ProcessParser::getOSName() {
     while(stream.good()) {
         getline(stream, line);
         if (line.compare(0, OS_RELEASE_PATTERN.size(), OS_RELEASE_PATTERN) == 0) {
+            line = Util::rtrim(Util::ltrim(line));
             int equal_sign_idx = line.find_first_of('=');
             if (equal_sign_idx == string::npos) break;
-            return line.substr(equal_sign_idx + 1, line.length() - equal_sign_idx + 1);
+            return line.substr(equal_sign_idx + 2, line.length() - equal_sign_idx - 3);
         }
     }
     return "N/A";
