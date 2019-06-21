@@ -37,13 +37,13 @@ void writeSysInfoToConsole(SysInfo sys, WINDOW *sys_win)
         mvwprintw(sys_win, (6 + i), 2, getCString(val[i]));
     }
     wattroff(sys_win, COLOR_PAIR(1));
-    mvwprintw(sys_win, 10, 2, getCString(("Memory: ")));
+    mvwprintw(sys_win, 14, 2, getCString(("Memory: ")));
     wattron(sys_win, COLOR_PAIR(1));
     wprintw(sys_win, getCString(Util::getProgressBar(sys.getMemPercent())));
     wattroff(sys_win, COLOR_PAIR(1));
-    mvwprintw(sys_win, 11, 2, getCString(("Total Processes:" + sys.getTotalProc())));
-    mvwprintw(sys_win, 12, 2, getCString(("Running Processes:" + sys.getRunningProc())));
-    mvwprintw(sys_win, 13, 2, getCString(("Up Time: " + Util::convertToTime(sys.getUpTime()))));
+    mvwprintw(sys_win, 15, 2, getCString(("Total Processes:" + sys.getTotalProc())));
+    mvwprintw(sys_win, 16, 2, getCString(("Running Processes:" + sys.getRunningProc())));
+    mvwprintw(sys_win, 17, 2, getCString(("Up Time: " + Util::convertToTime(sys.getUpTime()))));
     wrefresh(sys_win);
 }
 
@@ -71,8 +71,8 @@ void printMain(SysInfo sys, ProcessContainer procs)
     start_color(); // Enabling color change of text
     int yMax, xMax;
     getmaxyx(stdscr, yMax, xMax); // getting size of window measured in lines and columns(column one char length)
-    WINDOW *sys_win = newwin(17, xMax - 1, 0, 0);
-    WINDOW *proc_win = newwin(15, xMax - 1, 18, 0);
+    WINDOW *sys_win = newwin(20, xMax - 1, 0, 0);
+    WINDOW *proc_win = newwin(15, xMax - 1, 20, 0);
 
     init_pair(1, COLOR_BLUE, COLOR_BLACK);
     init_pair(2, COLOR_GREEN, COLOR_BLACK);

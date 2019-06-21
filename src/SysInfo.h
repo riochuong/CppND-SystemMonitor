@@ -53,7 +53,7 @@ void SysInfo::getOtherCores(int _size){
         this->lastCpuCoresStats.resize(_size);
         this->currentCpuCoresStats = std::vector<std::vector<std::string>>();
         this->currentCpuCoresStats.resize(_size);
-    for(int i=0;i<_size;i++){
+    for(int i=0; i<_size; i++){
         this->lastCpuCoresStats[i] = ProcessParser::getSysCpuPercent(to_string(i));
     }
 }
@@ -62,7 +62,7 @@ void SysInfo::setLastCpuMeasures(){
 }
 void SysInfo::setCpuCoresStats(){
 // Getting data from files (previous data is required)
-    for(int i=0;i<this->currentCpuCoresStats.size();i++){
+    for(int i = 0; i < this->currentCpuCoresStats.size(); i++){
         this->currentCpuCoresStats[i] = ProcessParser::getSysCpuPercent(to_string(i));
     }
     for(int i=0;i<this->currentCpuCoresStats.size();i++){

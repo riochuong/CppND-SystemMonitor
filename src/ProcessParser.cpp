@@ -1,4 +1,5 @@
 #include <dirent.h>
+#include <iomanip>
 #include "ProcessParser.h"
 #include "util.h"
 
@@ -85,12 +86,27 @@ vector<string> ProcessParser::getPidList()
     return pid_list;
 }
 
+/***
+ * Helper to format nice float string to be displayed 
+ */
+string formatFloatStrWithPrecision(float num, int precision){
+    stringstream stream;
+    stream << fixed << std::setprecision(precision) << num;
+    return stream.str();
+}
+
 std::string ProcessParser::getVmSize(string pid)
 {
     std::string status_path = Path::basePath() + pid + Path::statusPath();
     ifstream stream;
     string line;
-    Util::getStream(status_path, stream);
+    try{
+        Util::getStream(status_path, stream);
+    }
+    catch (std::runtime_error &e) {
+        return "N/A";
+    }
+    
     if (stream.is_open())
     {
         while (stream.good())
@@ -101,7 +117,8 @@ std::string ProcessParser::getVmSize(string pid)
                 // found the VMSIZE line need to grep the size
                 int start_idx = line.find_first_of("0123456789");
                 int end_idx = line.find_last_of("0123456789");
-                return line.substr(start_idx, end_idx - start_idx + 1);
+                float vmsize_kb= stof(line.substr(start_idx, end_idx - start_idx + 1));
+                return formatFloatStrWithPrecision(vmsize_kb / 1024.0, 2);
             }
         }
     }
@@ -139,7 +156,10 @@ std::string getTokenStringAtIdx(const string &path, int idx, const char delim) {
                 count++;
             }
         }
-        catch (invalid_argument e) {
+        catch (invalid_argument &e) {
+            return "N/A";
+        }
+        catch (std::runtime_error &e) {
             return "N/A";
         }
     }
@@ -153,7 +173,7 @@ std::string ProcessParser::getProcUpTime(string pid)
     long clock_ticks_per_sec = sysconf(_SC_CLK_TCK);
     if (uptime_str.find_first_not_of("0123456789") == string::npos) {
         // uptime is a good numerical value
-        return to_string(float(stof(uptime_str) / clock_ticks_per_sec));
+        return formatFloatStrWithPrecision(float(stof(uptime_str) / clock_ticks_per_sec), 2);
     }
     return "N/A";
 }
@@ -167,7 +187,7 @@ long int ProcessParser::getSysUpTime() {
     string sys_uptime_str = getTokenStringAtIdx(sys_uptime_path, SYS_UPTIME_IDX, STAT_DELIM);
     if (sys_uptime_str.find_first_not_of("0123456789.") == string::npos) {
         // sys_uptime is a good numerical value
-        return stoi(sys_uptime_str);
+        return static_cast<long>(stof(sys_uptime_str));
     }
     return -1;
 }
@@ -182,7 +202,12 @@ string ProcessParser::getProcUser(string pid) {
     ifstream stream;
     string line;
     string ruid;
-    Util::getStream(proc_path, stream);
+    try {
+        Util::getStream(proc_path, stream);
+    } 
+    catch (std::runtime_error &e) {
+        return "N/A";
+    }
     // get the numberical value of the real Uid
     while (stream.good()) {
         std::getline(stream, line);
@@ -225,6 +250,18 @@ string ProcessParser::getCpuPercent(string pid) {
     float tick_per_sec = sysconf(_SC_CLK_TCK);
     ifstream stream;
     string line;
+    float sys_up_time;
+
+    // need to get systime up here to avoid round up issue that can
+    // make high intensive process usage calculation be off (stress-ng)
+    std::string sys_uptime_path = Path::basePath() + Path::upTimePath();
+    string sys_uptime_str = getTokenStringAtIdx(sys_uptime_path, SYS_UPTIME_IDX, STAT_DELIM);
+    if (sys_uptime_str.find_first_not_of("0123456789.") == string::npos) {
+        // sys_uptime is a good numerical value
+        sys_up_time = stof(sys_uptime_str);
+    }
+
+
     Util::getStream(proc_path, stream);
     if (stream.good()) {
         getline(stream, line);
@@ -233,15 +270,14 @@ string ProcessParser::getCpuPercent(string pid) {
     istringstream sstream(line);
     try {
         vector<string> tokens (std::istream_iterator<string>{sstream}, std::istream_iterator<string>());
-        float utime = stof(ProcessParser::getProcUpTime(pid));
+        float utime = stof(tokens[13]);
         float stime = stof(tokens[14]);
         float cutime = stof(tokens[15]);
         float cstime = stof(tokens[16]);
         float starttime = stof(tokens[21]);
-        float sys_up_time = ProcessParser::getSysUpTime();
         float total_run_time = utime + stime + cutime + cstime;
         float percent_usage = 100.0 * ((total_run_time / tick_per_sec)/(sys_up_time - starttime/tick_per_sec));
-        return to_string(percent_usage);
+        return formatFloatStrWithPrecision(percent_usage, 2);
     } catch (const std::exception &e) {
         std::cout << "Invalid value for conversion " << e.what() << std::endl;
         return "N/A";
@@ -257,18 +293,17 @@ int ProcessParser::getNumberOfCores() {
     ifstream stream;
     string line;
     Util::getStream(cpu_info_path, stream);
+    int core_count = 0;
     while(stream.good()) {
         string title;
         getline(stream, line);
         istringstream str_stream(line);
         getline(str_stream, title, CPU_CORE_DELIM);
         if (title.find(CPU_CORE_PATTERN, 0) != string::npos) {
-            string numCore;
-            getline(str_stream, numCore, CPU_CORE_DELIM);
-            return stoi(numCore);
+            core_count += 1;
         }
     }
-    return -1;
+    return core_count;
 
 }
 

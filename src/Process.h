@@ -52,8 +52,8 @@ string Process::getProcess(){
 
     return (this->pid + "   "
             + this->user + "   " 
-            + this->mem + "   "
             + this->cpu + "   "
+            + this->mem + "   "
             + this->upTime + "   " 
             + this->cmd
     );

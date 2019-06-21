@@ -66,9 +66,10 @@ TEST(ProcessParserTest, GetProcUser) {
 }
 
 TEST(ProcessParserTest, GetCpuPercent) {
-    string pid = "6011";
+    string pid = "28404";
     string usage = ProcessParser::getCpuPercent(pid);
     std::cout << "CPU usage of process " << pid << " : " << usage << " \%" << std::endl;
+    ASSERT_TRUE(stof(usage) < 100.0);
     ASSERT_TRUE(usage.find_first_not_of("0123456789.") == string::npos);
 }
 
@@ -76,7 +77,7 @@ TEST(ProcessParserTest, GetNumCores) {
     int numCores = ProcessParser::getNumberOfCores();
     std::cout << "Number of Core: " << numCores << std::endl;
     // varied on different type of machines
-    ASSERT_TRUE(numCores== 4);
+    ASSERT_TRUE(numCores== 8);
 }
 
 TEST(ProcessParserTest, GetSystemPercentCPU) {
@@ -100,12 +101,12 @@ TEST(ProcessParserTest, GetSystemPercentCPU) {
 }
 
 TEST(ProcessParserTest, PrintCPUStats) {
-    vector<string> stat1 = ProcessParser::getSysCpuPercent("0");
-    sleep(1);
-    vector<string> stat2 = ProcessParser::getSysCpuPercent("0");
+    vector<string> stat1 = ProcessParser::getSysCpuPercent("7");
+    sleep(2);
+    vector<string> stat2 = ProcessParser::getSysCpuPercent("7");
     string percent_active = ProcessParser::PrintCpuStats(stat1, stat2);
     std::cout << "Active time percentage over 5 sec: " << percent_active << std::endl;
-    ASSERT_TRUE(stof(percent_active) > 0.0);
+    ASSERT_TRUE(stof(percent_active) > 0.000000000000000000000000000000);
 }
 
 TEST(ProcessParserTest, GetSysRamPercentage) {
